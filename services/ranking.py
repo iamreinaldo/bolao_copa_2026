@@ -1,0 +1,152 @@
+from services.sheets import (
+    listar_jogos,
+    listar_todos_palpites,
+    listar_usuarios
+)
+
+
+def calcular_pontos(
+    palpite_a,
+    palpite_b,
+    real_a,
+    real_b
+):
+    if palpite_a == real_a and palpite_b == real_b:
+        return 3
+
+    if real_a == real_b and palpite_a == palpite_b:
+        return 1
+
+    if real_a > real_b and palpite_a > palpite_b:
+        return 1
+
+    if real_a < real_b and palpite_a < palpite_b:
+        return 1
+
+    return 0
+
+
+def gerar_ranking():
+
+    jogos = listar_jogos()
+    palpites = listar_todos_palpites()
+    usuarios = listar_usuarios()
+
+    ranking = {}
+
+    usuarios_por_id = {
+        str(usuario["id"]): usuario["nome"]
+        for usuario in usuarios
+    }
+
+    jogos_encerrados = {
+        str(jogo["id"]): jogo
+        for jogo in jogos
+        if str(jogo["encerrado"]).lower() == "true"
+    }
+
+    for palpite in palpites:
+
+        jogo = jogos_encerrados.get(
+            str(palpite["jogo_id"])
+        )
+
+        if not jogo:
+            continue
+
+        pontos = calcular_pontos(
+            int(palpite["palpite_a"]),
+            int(palpite["palpite_b"]),
+            int(jogo["gols_a"]),
+            int(jogo["gols_b"])
+        )
+
+        usuario_id = str(palpite["usuario_id"])
+
+        ranking[usuario_id] = (
+            ranking.get(usuario_id, 0)
+            + pontos
+        )
+
+    resultado = []
+
+    for usuario_id, pontos in ranking.items():
+
+        resultado.append({
+            "nome": usuarios_por_id.get(
+                usuario_id,
+                "Desconhecido"
+            ),
+            "pontos": pontos
+        })
+
+    resultado.sort(
+        key=lambda x: x["pontos"],
+        reverse=True
+    )
+
+    return resultado
+
+
+def gerar_ranking_por_data(data_escolhida):
+
+    jogos = listar_jogos()
+    palpites = listar_todos_palpites()
+    usuarios = listar_usuarios()
+
+    ranking = {}
+
+    usuarios_por_id = {
+        str(usuario["id"]): usuario["nome"]
+        for usuario in usuarios
+    }
+
+    jogos_da_data = {
+        str(jogo["id"]): jogo
+        for jogo in jogos
+        if (
+            jogo["data_hora"].split(" ")[0] == data_escolhida
+            and str(jogo["encerrado"]).lower() == "true"
+        )
+    }
+
+    for palpite in palpites:
+
+        jogo = jogos_da_data.get(
+            str(palpite["jogo_id"])
+        )
+
+        if not jogo:
+            continue
+
+        pontos = calcular_pontos(
+            int(palpite["palpite_a"]),
+            int(palpite["palpite_b"]),
+            int(jogo["gols_a"]),
+            int(jogo["gols_b"])
+        )
+
+        usuario_id = str(palpite["usuario_id"])
+
+        ranking[usuario_id] = (
+            ranking.get(usuario_id, 0)
+            + pontos
+        )
+
+    resultado = []
+
+    for usuario_id, pontos in ranking.items():
+        resultado.append({
+            "nome": usuarios_por_id.get(
+                usuario_id,
+                "Desconhecido"
+            ),
+            "pontos": pontos
+        })
+
+    resultado.sort(
+        key=lambda x: x["pontos"],
+        reverse=True
+    )
+
+    return resultado

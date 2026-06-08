@@ -1,0 +1,29 @@
+import streamlit as st
+
+if not st.session_state.get("logado"):
+    st.switch_page("Home.py")
+
+from services.ranking import gerar_ranking
+
+st.title("🏆 Ranking")
+
+ranking = gerar_ranking()
+
+if not ranking:
+    st.info("Ainda não existem jogos encerrados.")
+else:
+
+    for posicao, usuario in enumerate(ranking, start=1):
+
+        medalha = ""
+
+        if posicao == 1:
+            medalha = "🥇"
+        elif posicao == 2:
+            medalha = "🥈"
+        elif posicao == 3:
+            medalha = "🥉"
+
+        st.write(
+            f'{medalha} {posicao}º - {usuario["nome"]} ({usuario["pontos"]} pts)'
+        )

@@ -1,0 +1,111 @@
+import streamlit as st
+from datetime import datetime
+
+if not st.session_state.get("logado"):
+    st.switch_page("Home.py")
+
+from services.sheets import (
+    listar_jogos,
+    salvar_ou_atualizar_palpite,
+    obter_palpite
+)
+
+st.title("⚽ Jogos")
+
+
+jogos = listar_jogos()
+
+# Datas disponíveis
+_datas_disponiveis = sorted(
+    list({jogo["data_hora"].split(" ")[0] for jogo in jogos})
+)
+
+if _datas_disponiveis:
+    data_selecionada = st.selectbox(
+        "📅 Filtrar por data",
+        _datas_disponiveis
+    )
+
+    jogos = [
+        jogo
+        for jogo in jogos
+        if jogo["data_hora"].startswith(data_selecionada)
+    ]
+
+
+for jogo in jogos:
+
+    st.subheader(
+        f'{jogo["time_a"]} x {jogo["time_b"]}'
+    )
+    st.caption(f'📅 {jogo["data_hora"]}')
+    data_jogo = datetime.strptime(
+    jogo["data_hora"],
+    "%d/%m/%Y %H:%M"
+)
+    status_encerrado = (
+        str(jogo["encerrado"]).lower() == "true"
+    )
+    pode_apostar = (
+        datetime.now() < data_jogo and not status_encerrado
+    )
+    if pode_apostar == True:
+        st.write("✅ Você pode palpitar, adiante seu baba logo não, fique aí")
+    else:
+        st.write("❌ Deu mole pvt, acabou o tempo.")
+
+    palpite_existente = obter_palpite(
+        st.session_state.usuario_id,
+        jogo["id"]
+    )
+
+    valor_a = 0
+    valor_b = 0
+
+    if palpite_existente:
+        st.info(
+    f'Última atualização: {palpite_existente["atualizado_em"]}'
+        )
+        valor_a = int(palpite_existente["palpite_a"])
+        valor_b = int(palpite_existente["palpite_b"])
+
+    if not pode_apostar:
+
+        st.warning("🔒 Palpites encerrados")
+
+        st.write(
+            f'Palpite registrado: {jogo["time_a"]} {valor_a} x {valor_b} {jogo["time_b"]}'
+        )
+
+    else:
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            palpite_a = st.number_input(
+                jogo["time_a"],
+                min_value=0,
+                value=valor_a,
+                key=f'a_{jogo["id"]}'
+            )
+
+        with col2:
+            palpite_b = st.number_input(
+                jogo["time_b"],
+                min_value=0,
+                value=valor_b,
+                key=f'b_{jogo["id"]}'
+            )
+
+        if st.button(
+            "Salvar",
+            key=f'salvar_{jogo["id"]}'
+        ):
+            salvar_ou_atualizar_palpite(
+                st.session_state.usuario_id,
+                jogo["id"],
+                palpite_a,
+                palpite_b
+            )
+
+            st.success("Palpite salvo")
