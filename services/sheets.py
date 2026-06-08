@@ -1,19 +1,15 @@
 import gspread
-from google.oauth2.service_account import Credentials
+import streamlit as st
 from datetime import datetime
 
-SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
-]
 
-creds = Credentials.from_service_account_file(
-    "data/credentials.json",
-    scopes=SCOPES
+creds = gspread.service_account_from_dict(
+    st.secrets["gcp_service_account"]
 )
 
-client = gspread.authorize(creds)
-
+client = gspread.service_account_from_dict(
+    st.secrets["gcp_service_account"]
+)
 spreadsheet = client.open("bolao_copa_do_mundo_2026_imbecis")
 
 def listar_usuarios():
