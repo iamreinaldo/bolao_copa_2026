@@ -1,5 +1,7 @@
 import streamlit as st
 from datetime import datetime
+from services.footer import mostrar_rodape
+
 
 if not st.session_state.get("logado"):
     st.switch_page("Home.py")
@@ -144,3 +146,4 @@ for jogo in jogos:
             )
 
             st.success("Palpite salvo")
+mostrar_rodape()

@@ -1,6 +1,8 @@
 import streamlit as st
 from config.selecoes import SELECOES
 from datetime import datetime
+from services.footer import mostrar_rodape
+
 if st.session_state.usuario != "admin":
 
     st.title("Você é admin, painho? 🤨")
@@ -294,3 +296,4 @@ with aba_usuarios:
         st.code(
             f"Usuário: {usuario}\nSenha: {senha}"
         )
+mostrar_rodape()

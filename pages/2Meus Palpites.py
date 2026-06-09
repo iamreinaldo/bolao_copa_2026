@@ -1,4 +1,5 @@
 import streamlit as st
+from services.footer import mostrar_rodape
 
 if not st.session_state.get("logado"):
     st.switch_page("Home.py")
@@ -59,3 +60,6 @@ else:
         )
 
         st.divider()
+
+
+mostrar_rodape()

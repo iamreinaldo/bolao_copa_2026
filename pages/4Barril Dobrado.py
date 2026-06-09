@@ -3,6 +3,8 @@ import streamlit as st
 from services.sheets import listar_jogos
 from services.pontuacao import calcular_ranking_por_data
 
+from services.footer import mostrar_rodape
+
 if not st.session_state.get("logado"):
     st.switch_page("Home.py")
 
@@ -70,3 +72,4 @@ else:
         st.write(
             f'{medalha} {posicao}º - {nome} ({usuario["pontos"]} pts)'
         )
+mostrar_rodape()

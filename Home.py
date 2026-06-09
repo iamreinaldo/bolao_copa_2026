@@ -1,5 +1,6 @@
 import streamlit as st
 from services.auth import login, logout
+from services.footer import mostrar_rodape
 
 
 st.set_page_config(
@@ -47,11 +48,4 @@ else:
 
 
 # Footer
-st.markdown(
-    """
-    <div style='text-align:center; color:gray; font-size:12px; margin-top:50px;'>
-        Desenvolvido por Reitinik 🛰️ - versão 2.0.0
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+mostrar_rodape()

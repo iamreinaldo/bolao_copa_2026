@@ -1,4 +1,5 @@
 import streamlit as st
+from services.footer import mostrar_rodape
 
 if not st.session_state.get("logado"):
     st.switch_page("Home.py")
@@ -27,3 +28,6 @@ else:
         st.write(
             f'{medalha} {posicao}º - {usuario["usuario"]} ({usuario["pontos"]} pts)'
         )
+
+
+mostrar_rodape()
