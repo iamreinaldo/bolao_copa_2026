@@ -3,11 +3,11 @@ import streamlit as st
 if not st.session_state.get("logado"):
     st.switch_page("Home.py")
 
-from services.ranking import gerar_ranking
+from services.pontuacao import calcular_ranking
 
 st.title("🏆 Ranking")
 
-ranking = gerar_ranking()
+ranking = calcular_ranking()
 
 if not ranking:
     st.info("Ainda não existem jogos encerrados.")
@@ -25,5 +25,5 @@ else:
             medalha = "🥉"
 
         st.write(
-            f'{medalha} {posicao}º - {usuario["nome"]} ({usuario["pontos"]} pts)'
+            f'{medalha} {posicao}º - {usuario["usuario"]} ({usuario["pontos"]} pts)'
         )

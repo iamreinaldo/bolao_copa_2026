@@ -5,7 +5,8 @@ if not st.session_state.get("logado"):
 
 from services.sheets import (
     listar_palpites_usuario,
-    listar_jogos
+    listar_jogos,
+    listar_jogadores
 )
 
 st.title("📝 Meus Palpites")
@@ -19,6 +20,13 @@ jogos = listar_jogos()
 jogos_por_id = {
     str(jogo["id"]): jogo
     for jogo in jogos
+}
+
+jogadores = listar_jogadores()
+
+jogadores_por_id = {
+    str(jogador["id"]): jogador["jogador"]
+    for jogador in jogadores
 }
 
 if not palpites:
@@ -39,6 +47,15 @@ else:
 
         st.caption(
             f'Atualizado em: {palpite["atualizado_em"]}'
+        )
+
+        jogador_apostado = jogadores_por_id.get(
+            str(palpite.get("jogador_gol", "")),
+            "Não informado"
+        )
+
+        st.caption(
+            f'⚽ Artilheiro apostado: {jogador_apostado}'
         )
 
         st.divider()

@@ -2,14 +2,27 @@ import gspread
 import streamlit as st
 from datetime import datetime
 
+import os
+import gspread
+import streamlit as st
 
-creds = gspread.service_account_from_dict(
-    st.secrets["gcp_service_account"]
-)
+if os.path.exists("data/credentials.json"):
+    client = gspread.service_account(
+        filename="data/credentials.json"
+    )
+else:
+    client = gspread.service_account_from_dict(
+        st.secrets["gcp_service_account"]
+    )
 
-client = gspread.service_account_from_dict(
-    st.secrets["gcp_service_account"]
-)
+
+# creds = gspread.service_account_from_dict(
+#     st.secrets["gcp_service_account"]
+# )
+
+# client = gspread.service_account_from_dict(
+#     st.secrets["gcp_service_account"]
+# )
 spreadsheet = client.open("bolao_copa_do_mundo_2026_imbecis")
 
 def listar_usuarios():
@@ -40,7 +53,8 @@ def salvar_palpite(
     usuario_id,
     jogo_id,
     palpite_a,
-    palpite_b
+    palpite_b,
+    jogador_id
 ):
     worksheet = spreadsheet.worksheet("palpites")
 
@@ -49,7 +63,8 @@ def salvar_palpite(
         jogo_id,
         palpite_a,
         palpite_b,
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        jogador_id
     ])
 
 def buscar_palpite(usuario_id, jogo_id):
@@ -73,7 +88,8 @@ def salvar_ou_atualizar_palpite(
     usuario_id,
     jogo_id,
     palpite_a,
-    palpite_b
+    palpite_b,
+    jogador_id
 ):
     worksheet = spreadsheet.worksheet("palpites")
 
@@ -84,11 +100,12 @@ def salvar_ou_atualizar_palpite(
 
     if linha:
         worksheet.update(
-            f"C{linha}:E{linha}",
+            f"C{linha}:F{linha}",
             [[
                 palpite_a,
                 palpite_b,
-                datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                jogador_id
             ]]
         )
     else:
@@ -97,7 +114,8 @@ def salvar_ou_atualizar_palpite(
             jogo_id,
             palpite_a,
             palpite_b,
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            jogador_id
         ])
 
 
@@ -170,3 +188,119 @@ def adicionar_jogo(
         "",
         False
     ])
+
+def listar_jogadores():
+    worksheet = spreadsheet.worksheet("jogadores")
+    return worksheet.get_all_records()
+
+def listar_gols():
+    worksheet = spreadsheet.worksheet("gols")
+    return worksheet.get_all_records()
+
+def adicionar_gol(
+    jogo_id,
+    jogador_id,
+    gols
+):
+    worksheet = spreadsheet.worksheet("gols")
+
+    registros = worksheet.get_all_records()
+
+    novo_id = (
+        max(
+            [int(r["id"]) for r in registros],
+            default=0
+        )
+        + 1
+    )
+
+    worksheet.append_row([
+        novo_id,
+        jogo_id,
+        jogador_id,
+        gols
+    ])
+
+def buscar_gols_jogador(
+    jogo_id,
+    jogador_id
+):
+    gols = listar_gols()
+
+    for gol in gols:
+
+        if (
+            str(gol["jogo_id"]) == str(jogo_id)
+            and str(gol["jogador_id"]) == str(jogador_id)
+        ):
+            return int(gol["gols"])
+
+    return 0
+
+
+def buscar_gol(
+    jogo_id,
+    jogador_id
+):
+    worksheet = spreadsheet.worksheet(
+        "gols"
+    )
+
+    registros = worksheet.get_all_records()
+
+    for index, gol in enumerate(
+        registros,
+        start=2
+    ):
+
+        if (
+            str(gol["jogo_id"]) == str(jogo_id)
+            and str(gol["jogador_id"]) == str(jogador_id)
+        ):
+            return gol, index
+
+    return None, None
+
+
+def salvar_ou_atualizar_gol(
+    jogo_id,
+    jogador_id,
+    gols
+):
+    worksheet = spreadsheet.worksheet(
+        "gols"
+    )
+
+    gol_existente, linha = buscar_gol(
+        jogo_id,
+        jogador_id
+    )
+
+    if linha:
+
+        worksheet.update(
+            f"D{linha}",
+            [[gols]]
+        )
+
+    else:
+
+        registros = worksheet.get_all_records()
+
+        novo_id = (
+            max(
+                [
+                    int(r["id"])
+                    for r in registros
+                ],
+                default=0
+            )
+            + 1
+        )
+
+        worksheet.append_row([
+            novo_id,
+            jogo_id,
+            jogador_id,
+            gols
+        ])

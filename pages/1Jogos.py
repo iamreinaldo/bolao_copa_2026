@@ -7,7 +7,8 @@ if not st.session_state.get("logado"):
 from services.sheets import (
     listar_jogos,
     salvar_ou_atualizar_palpite,
-    obter_palpite
+    obter_palpite,
+    listar_jogadores
 )
 
 st.title("⚽ Jogos")
@@ -34,6 +35,7 @@ if _datas_disponiveis:
 
 
 for jogo in jogos:
+    st.divider()
 
     st.subheader(
         f'{jogo["time_a"]} x {jogo["time_b"]}'
@@ -97,6 +99,38 @@ for jogo in jogos:
                 key=f'b_{jogo["id"]}'
             )
 
+        todos_jogadores = listar_jogadores()
+
+        time_jogador = st.radio(
+            "⚽ Time do artilheiro",
+            [
+                jogo["time_a"],
+                jogo["time_b"]
+            ],
+            horizontal=True,
+            key=f'time_jogador_{jogo["id"]}'
+        )
+
+        jogadores_disponiveis = [
+            jogador
+            for jogador in todos_jogadores
+            if jogador["selecao"] == time_jogador
+        ]
+
+        jogador_escolhido = st.selectbox(
+            "⚽ Jogador",
+            options=[
+                jogador["id"]
+                for jogador in jogadores_disponiveis
+            ],
+            format_func=lambda jogador_id: next(
+                j["jogador"]
+                for j in jogadores_disponiveis
+                if str(j["id"]) == str(jogador_id)
+            ),
+            key=f'jogador_{jogo["id"]}'
+        )
+
         if st.button(
             "Salvar",
             key=f'salvar_{jogo["id"]}'
@@ -105,7 +139,8 @@ for jogo in jogos:
                 st.session_state.usuario_id,
                 jogo["id"],
                 palpite_a,
-                palpite_b
+                palpite_b,
+                jogador_escolhido
             )
 
             st.success("Palpite salvo")

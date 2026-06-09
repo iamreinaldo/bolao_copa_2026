@@ -1,9 +1,7 @@
-
-
 import streamlit as st
 
 from services.sheets import listar_jogos
-from services.ranking import gerar_ranking_por_data
+from services.pontuacao import calcular_ranking_por_data
 
 if not st.session_state.get("logado"):
     st.switch_page("Home.py")
@@ -29,7 +27,7 @@ data_escolhida = st.selectbox(
     datas
 )
 
-ranking = gerar_ranking_por_data(
+ranking = calcular_ranking_por_data(
     data_escolhida
 )
 
@@ -42,6 +40,16 @@ if not ranking:
         "Relaxe que não terminou jogo nenhum ainda."
     )
 else:
+
+    vencedor = ranking[0]
+
+    st.success(
+        f'🍺 Barril Dobrado: {vencedor["nome"]} ({vencedor["pontos"]} pts)'
+    )
+
+    st.divider()
+
+    st.subheader("Classificação da rodada")
 
     for posicao, usuario in enumerate(
         ranking,
@@ -57,6 +65,8 @@ else:
         elif posicao == 3:
             medalha = "🥉"
 
+        nome = usuario.get("nome", usuario.get("usuario", "-"))
+
         st.write(
-            f'{medalha} {usuario["nome"]} - {usuario["pontos"]} pts'
+            f'{medalha} {posicao}º - {nome} ({usuario["pontos"]} pts)'
         )

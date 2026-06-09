@@ -15,7 +15,10 @@ from services.sheets import (
     listar_jogos,
     atualizar_resultado,
     adicionar_jogo,
-    listar_usuarios
+    listar_usuarios,
+    listar_jogadores,
+    salvar_ou_atualizar_gol,
+    buscar_gols_jogador
 )
 
 st.title("⚙️ Administração")
@@ -83,8 +86,34 @@ with aba_jogos:
 
 with aba_resultados:
     jogos = listar_jogos()
+    todos_jogadores = listar_jogadores()
+
+    datas_disponiveis = sorted(
+        list({
+            jogo["data_hora"].split(" ")[0]
+            for jogo in jogos
+        })
+    )
+
+    if datas_disponiveis:
+
+        data_selecionada = st.selectbox(
+            "📅 Filtrar por data",
+            datas_disponiveis,
+            key="admin_data_resultados"
+        )
+
+        jogos = [
+            jogo
+            for jogo in jogos
+            if jogo["data_hora"].startswith(
+                data_selecionada
+            )
+        ]
 
     for jogo in jogos:
+
+        st.divider()
 
         st.subheader(
             f'{jogo["time_a"]} x {jogo["time_b"]}'
@@ -118,6 +147,70 @@ with aba_resultados:
             key=f'encerrado_{jogo["id"]}'
         )
 
+        st.markdown("### ⚽ Gols da Partida")
+
+
+        jogadores_partida = [
+            jogador
+            for jogador in todos_jogadores
+            if (
+                jogador["selecao"] == jogo["time_a"]
+                or jogador["selecao"] == jogo["time_b"]
+            )
+        ]
+
+        quantidade_linhas = st.number_input(
+            "Quantidade de artilheiros",
+            min_value=0,
+            max_value=20,
+            value=0,
+            key=f'qtde_gols_{jogo["id"]}'
+        )
+
+        gols_jogadores = {}
+
+        for indice in range(quantidade_linhas):
+
+            col_time, col_jogador, col_gols = st.columns([2, 4, 1])
+
+            with col_time:
+                selecao_escolhida = st.selectbox(
+                    f'Time #{indice + 1}',
+                    [
+                        jogo["time_a"],
+                        jogo["time_b"]
+                    ],
+                    key=f'time_gol_{jogo["id"]}_{indice}'
+                )
+
+            jogadores_selecao = [
+                j
+                for j in jogadores_partida
+                if j["selecao"] == selecao_escolhida
+            ]
+
+            with col_jogador:
+                jogador_id = st.selectbox(
+                    f'Jogador #{indice + 1}',
+                    options=[j["id"] for j in jogadores_selecao],
+                    format_func=lambda x: next(
+                        j["jogador"]
+                        for j in jogadores_selecao
+                        if j["id"] == x
+                    ),
+                    key=f'jogador_{jogo["id"]}_{indice}'
+                )
+
+            with col_gols:
+                gols = st.number_input(
+                    'Gols',
+                    min_value=1,
+                    value=1,
+                    key=f'gols_{jogo["id"]}_{indice}'
+                )
+
+            gols_jogadores[jogador_id] = gols
+
         if st.button(
             "Salvar Resultado",
             key=f'salvar_resultado_{jogo["id"]}'
@@ -130,9 +223,16 @@ with aba_resultados:
                 encerrado
             )
 
-            st.success("Resultado atualizado")
+            for jogador_id, gols in gols_jogadores.items():
 
-        st.divider()
+                if gols > 0:
+                    salvar_ou_atualizar_gol(
+                        jogo["id"],
+                        jogador_id,
+                        gols
+                    )
+
+            st.success("Resultado atualizado")
 
 # Usuários tab
 with aba_usuarios:
