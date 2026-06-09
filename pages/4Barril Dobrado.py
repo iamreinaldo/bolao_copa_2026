@@ -32,6 +32,11 @@ data_escolhida = st.selectbox(
 ranking = calcular_ranking_por_data(
     data_escolhida
 )
+ranking = [
+    usuario
+    for usuario in ranking
+    if str(usuario.get("usuario_id")) != "1"
+]
 
 st.subheader(
     f"🏆 O Barril dobrado de {data_escolhida} é"

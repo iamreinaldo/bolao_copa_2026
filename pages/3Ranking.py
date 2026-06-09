@@ -9,6 +9,11 @@ from services.pontuacao import calcular_ranking
 st.title("🏆 Ranking")
 
 ranking = calcular_ranking()
+ranking = [
+    usuario
+    for usuario in ranking
+    if str(usuario.get("usuario_id")) != "1"
+]
 
 if not ranking:
     st.info("Ainda não existem jogos encerrados.")
