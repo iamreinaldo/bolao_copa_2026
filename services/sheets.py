@@ -25,11 +25,12 @@ else:
 # )
 spreadsheet = client.open("bolao_copa_do_mundo_2026_imbecis")
 
+@st.cache_data(ttl=60)
 def listar_usuarios():
     worksheet = spreadsheet.worksheet("usuarios")
     return worksheet.get_all_records()
 
-
+@st.cache_data(ttl=60)
 def listar_todos_palpites():
     worksheet = spreadsheet.worksheet("palpites")
     return worksheet.get_all_records()
@@ -45,6 +46,7 @@ def buscar_usuario(usuario):
             return user
     return None
 
+@st.cache_data(ttl=60)
 def listar_jogos():
     worksheet = spreadsheet.worksheet("jogos")
     return worksheet.get_all_records()
@@ -66,11 +68,10 @@ def salvar_palpite(
         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         jogador_id
     ])
+    st.cache_data.clear()
 
 def buscar_palpite(usuario_id, jogo_id):
-    worksheet = spreadsheet.worksheet("palpites")
-
-    palpites = worksheet.get_all_records()
+    palpites = listar_todos_palpites()
 
     print(palpites)
 
@@ -108,6 +109,7 @@ def salvar_ou_atualizar_palpite(
                 jogador_id
             ]]
         )
+        st.cache_data.clear()
     else:
         worksheet.append_row([
             usuario_id,
@@ -117,12 +119,11 @@ def salvar_ou_atualizar_palpite(
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             jogador_id
         ])
+        st.cache_data.clear()
 
 
 def obter_palpite(usuario_id, jogo_id):
-    worksheet = spreadsheet.worksheet("palpites")
-
-    palpites = worksheet.get_all_records()
+    palpites = listar_todos_palpites()
 
     for palpite in palpites:
         if (
@@ -134,11 +135,9 @@ def obter_palpite(usuario_id, jogo_id):
     return None
 
 
+@st.cache_data(ttl=60)
 def listar_palpites_usuario(usuario_id):
-    worksheet = spreadsheet.worksheet("palpites")
-
-    palpites = worksheet.get_all_records()
-
+    palpites = listar_todos_palpites()
     return [
         palpite
         for palpite in palpites
@@ -163,7 +162,7 @@ def atualizar_resultado(
                 f"E{index}:G{index}",
                 [[gols_a, gols_b, encerrado]]
             )
-
+            st.cache_data.clear()
             return True
 
     return False
@@ -188,11 +187,14 @@ def adicionar_jogo(
         "",
         False
     ])
+    st.cache_data.clear()
 
+@st.cache_data(ttl=60)
 def listar_jogadores():
     worksheet = spreadsheet.worksheet("jogadores")
     return worksheet.get_all_records()
 
+@st.cache_data(ttl=60)
 def listar_gols():
     worksheet = spreadsheet.worksheet("gols")
     return worksheet.get_all_records()
@@ -220,6 +222,7 @@ def adicionar_gol(
         jogador_id,
         gols
     ])
+    st.cache_data.clear()
 
 def buscar_gols_jogador(
     jogo_id,
@@ -242,11 +245,7 @@ def buscar_gol(
     jogo_id,
     jogador_id
 ):
-    worksheet = spreadsheet.worksheet(
-        "gols"
-    )
-
-    registros = worksheet.get_all_records()
+    registros = listar_gols()
 
     for index, gol in enumerate(
         registros,
@@ -277,11 +276,11 @@ def salvar_ou_atualizar_gol(
     )
 
     if linha:
-
         worksheet.update(
             f"D{linha}",
             [[gols]]
         )
+        st.cache_data.clear()
 
     else:
 
@@ -304,3 +303,4 @@ def salvar_ou_atualizar_gol(
             jogador_id,
             gols
         ])
+        st.cache_data.clear()
