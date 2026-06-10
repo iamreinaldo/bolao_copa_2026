@@ -17,6 +17,7 @@ from services.sqlite import (
     listar_jogos,
     listar_jogadores,
     listar_usuarios,
+    listar_todos_palpites,
     adicionar_jogo,
     editar_jogo,
     criar_usuario,
@@ -32,11 +33,12 @@ from services.sqlite import (
 
 st.title("⚙️ Administração")
 
-aba_jogos, aba_resultados, aba_usuarios, aba_jogadores = st.tabs([
+aba_jogos, aba_resultados, aba_usuarios, aba_jogadores, aba_palpites = st.tabs([
     "➕ Jogos",
     "🏁 Resultados",
     "👤 Usuários",
-    "⚽ Jogadores"
+    "⚽ Jogadores",
+    "📝 Palpites"
 ])
 
 with aba_jogos:
@@ -520,4 +522,74 @@ with aba_jogadores:
 
             st.success("Jogador excluído.")
             st.rerun()
+
+with aba_palpites:
+
+    st.header("📝 Todos os Palpites")
+
+    usuarios = {
+        str(u["id"]): u
+        for u in listar_usuarios()
+    }
+
+    jogos = {
+        str(j["id"]): j
+        for j in listar_jogos()
+    }
+
+    jogadores = {
+        str(j["id"]): j["jogador"]
+        for j in listar_jogadores()
+    }
+
+    palpites = listar_todos_palpites()
+
+    usuarios_com_palpites = sorted(
+        {
+            str(p["usuario_id"])
+            for p in palpites
+        }
+    )
+
+    usuario_id = st.selectbox(
+        "👤 Usuário",
+        usuarios_com_palpites,
+        format_func=lambda uid: usuarios.get(uid, {}).get("nome", uid)
+    )
+
+    usuario = usuarios.get(usuario_id)
+
+    if usuario:
+
+        st.subheader(usuario["nome"])
+
+        palpites_usuario = [
+            p
+            for p in palpites
+            if str(p["usuario_id"]) == usuario_id
+        ]
+
+        for palpite in palpites_usuario:
+
+            jogo = jogos.get(
+                str(palpite["jogo_id"])
+            )
+
+            if not jogo:
+                continue
+
+            jogador_apostado = jogadores.get(
+                str(palpite.get("jogador_gol", "")),
+                "Não informado"
+            )
+
+            st.write(
+                f'{jogo["time_a"]} {palpite["palpite_a"]} x {palpite["palpite_b"]} {jogo["time_b"]}'
+            )
+
+            st.caption(
+                f'Artilheiro: {jogador_apostado}'
+            )
+
+    st.divider()
 mostrar_rodape()
