@@ -1,9 +1,9 @@
 import streamlit as st
-from services.sheets import buscar_usuario
+from services.sqlite import buscar_usuario
 
 
 def login(usuario, senha):
-    user = buscar_usuario(usuario)
+    user = buscar_usuario(usuario, senha)
 
     if not user:
         return False

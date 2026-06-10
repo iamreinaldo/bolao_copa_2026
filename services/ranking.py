@@ -1,4 +1,4 @@
-from services.sheets import (
+from services.sqlite import (
     listar_jogos,
     listar_todos_palpites,
     listar_usuarios

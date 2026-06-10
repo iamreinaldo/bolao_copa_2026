@@ -42,12 +42,13 @@ def calcular_pontos_palpite(
 
     return pontos
 
-from services.sheets import (
+from services.sqlite import (
+    listar_jogos,
     listar_usuarios,
     listar_todos_palpites,
-    listar_jogos,
     listar_gols
 )
+
 
 
 def calcular_ranking():

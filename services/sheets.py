@@ -304,3 +304,89 @@ def salvar_ou_atualizar_gol(
             gols
         ])
         st.cache_data.clear()
+
+
+def adicionar_jogador(
+    selecao,
+    jogador
+):
+
+    worksheet = spreadsheet.worksheet(
+        "jogadores"
+    )
+
+    registros = worksheet.get_all_records()
+
+    novo_id = (
+        max(
+            [
+                int(r["id"])
+                for r in registros
+            ],
+            default=0
+        )
+        + 1
+    )
+
+    worksheet.append_row([
+        novo_id,
+        selecao,
+        jogador
+    ])
+
+    st.cache_data.clear()
+
+    return novo_id
+
+def editar_jogador(
+    jogador_id,
+    selecao,
+    jogador
+):
+
+    worksheet = spreadsheet.worksheet(
+        "jogadores"
+    )
+
+    registros = worksheet.get_all_records()
+
+    for index, registro in enumerate(
+        registros,
+        start=2
+    ):
+
+        if str(registro["id"]) == str(jogador_id):
+
+            worksheet.update(
+                f"B{index}:C{index}",
+                [[selecao, jogador]]
+            )
+
+            st.cache_data.clear()
+            return True
+
+    return False
+
+
+
+def excluir_jogador(jogador_id):
+
+    worksheet = spreadsheet.worksheet(
+        "jogadores"
+    )
+
+    registros = worksheet.get_all_records()
+
+    for index, registro in enumerate(
+        registros,
+        start=2
+    ):
+
+        if str(registro["id"]) == str(jogador_id):
+
+            worksheet.delete_rows(index)
+
+            st.cache_data.clear()
+            return True
+
+    return False

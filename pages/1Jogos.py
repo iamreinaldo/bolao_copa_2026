@@ -6,12 +6,13 @@ from services.footer import mostrar_rodape
 if not st.session_state.get("logado"):
     st.switch_page("Home.py")
 
-from services.sheets import (
+from services.sqlite import (
     listar_jogos,
-    salvar_ou_atualizar_palpite,
+    listar_jogadores,
     obter_palpite,
-    listar_jogadores
+    salvar_ou_atualizar_palpite,
 )
+
 
 st.title("⚽ Jogos")
 

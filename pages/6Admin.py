@@ -13,22 +13,30 @@ if st.session_state.usuario != "admin":
 
 
     st.stop()
-from services.sheets import (
+from services.sqlite import (
     listar_jogos,
-    atualizar_resultado,
-    adicionar_jogo,
-    listar_usuarios,
     listar_jogadores,
+    listar_usuarios,
+    adicionar_jogo,
+    editar_jogo,
+    criar_usuario,
+    atualizar_usuario,
+    excluir_usuario,
+    atualizar_resultado,
     salvar_ou_atualizar_gol,
-    buscar_gols_jogador
+    buscar_gols_jogador,
+    adicionar_jogador,
+    editar_jogador,
+    excluir_jogador
 )
 
 st.title("⚙️ Administração")
 
-aba_jogos, aba_resultados, aba_usuarios = st.tabs([
-    "➕ Cadastrar Jogos",
+aba_jogos, aba_resultados, aba_usuarios, aba_jogadores = st.tabs([
+    "➕ Jogos",
     "🏁 Resultados",
-    "👤 Usuários"
+    "👤 Usuários",
+    "⚽ Jogadores"
 ])
 
 with aba_jogos:
@@ -85,6 +93,80 @@ with aba_jogos:
             st.error("Preencha todos os campos")
 
     st.divider()
+
+    st.header("✏️ Editar Jogos")
+
+    jogos = listar_jogos()
+
+    datas_jogos = sorted(
+        list({
+            jogo["data_hora"].split(" ")[0]
+            for jogo in jogos
+        })
+    )
+
+    if datas_jogos:
+
+        data_edicao = st.selectbox(
+            "📅 Data dos jogos",
+            datas_jogos,
+            key="data_edicao_jogos"
+        )
+
+        jogos_filtrados = [
+            jogo
+            for jogo in jogos
+            if jogo["data_hora"].startswith(data_edicao)
+        ]
+
+        if jogos_filtrados:
+
+            jogo_selecionado = st.selectbox(
+                "⚽ Jogo",
+                jogos_filtrados,
+                format_func=lambda j: f'{j["time_a"]} x {j["time_b"]}',
+                key="jogo_edicao"
+            )
+
+            st.session_state["editar_data_hora"] = jogo_selecionado["data_hora"]
+            st.session_state["editar_time_a"] = jogo_selecionado["time_a"]
+            st.session_state["editar_time_b"] = jogo_selecionado["time_b"]
+
+            data_hora_edicao = st.text_input(
+                "Data e Hora",
+                key="editar_data_hora"
+            )
+
+            col_ed1, col_ed2 = st.columns(2)
+
+            with col_ed1:
+                time_a_edicao = st.selectbox(
+                    "Time A",
+                    SELECOES,
+                    key="editar_time_a"
+                )
+
+            with col_ed2:
+                time_b_edicao = st.selectbox(
+                    "Time B",
+                    SELECOES,
+                    key="editar_time_b"
+                )
+
+            if st.button(
+                "Salvar Jogo",
+                key="salvar_jogo_editado"
+            ):
+
+                editar_jogo(
+                    jogo_selecionado["id"],
+                    data_hora_edicao,
+                    time_a_edicao,
+                    time_b_edicao
+                )
+
+                st.success("Jogo atualizado com sucesso.")
+                st.rerun()
 
 with aba_resultados:
     jogos = listar_jogos()
@@ -258,8 +340,6 @@ with aba_usuarios:
 
         import random
         import string
-        import gspread
-        from services.sheets import spreadsheet
 
         senha = ''.join(
             random.choices(
@@ -268,32 +348,165 @@ with aba_usuarios:
             )
         )
 
-        usuarios = listar_usuarios()
-
-        novo_id = 2
-
-        if usuarios:
-            novo_id = (
-                max(
-                    int(u["id"])
-                    for u in usuarios
-                ) + 1
-            )
-
-        worksheet = spreadsheet.worksheet(
-            "usuarios"
-        )
-
-        worksheet.append_row([
-            novo_id,
+        criar_usuario(
             nome,
             usuario,
             senha
-        ])
+        )
 
         st.success("Usuário criado")
 
         st.code(
             f"Usuário: {usuario}\nSenha: {senha}"
         )
+
+    st.divider()
+
+    st.header("✏️ Editar Usuário")
+
+    usuarios = [
+        u
+        for u in listar_usuarios()
+        if int(u["id"]) != 1
+    ]
+
+    if usuarios:
+
+        usuario_selecionado = st.selectbox(
+            "Selecione o usuário",
+            usuarios,
+            format_func=lambda u: f'{u["nome"]} ({u["usuario"]})'
+        )
+        st.session_state["editar_nome"] = usuario_selecionado["nome"]
+        st.session_state["editar_senha"] = usuario_selecionado["senha"]
+
+        nome_edicao = st.text_input(
+            "Nome",
+            key="editar_nome"
+        )
+
+        senha_edicao = st.text_input(
+            "Senha",
+            key="editar_senha"
+        )
+
+        if st.button(
+            "Salvar Alterações",
+            key="salvar_usuario"
+        ):
+
+            atualizar_usuario(
+                usuario_selecionado["id"],
+                nome_edicao,
+                senha_edicao
+            )
+
+            st.success(
+                "Usuário atualizado com sucesso."
+            )
+
+            st.rerun()
+
+        st.divider()
+
+        if st.button(
+            "🗑️ Excluir Usuário",
+            key="excluir_usuario"
+        ):
+
+            excluir_usuario(
+                usuario_selecionado["id"]
+            )
+
+            st.success(
+                "Usuário excluído com sucesso."
+            )
+
+            st.rerun()
+with aba_jogadores:
+
+    st.header("⚽ Gerenciar Jogadores")
+
+    selecao_filtro = st.selectbox(
+        "Seleção",
+        SELECOES,
+        key="selecao_jogadores"
+    )
+
+    todos_jogadores = listar_jogadores()
+
+    jogadores_filtrados = [
+        j
+        for j in todos_jogadores
+        if j["selecao"] == selecao_filtro
+    ]
+
+    st.subheader("➕ Adicionar Jogador")
+
+    if "novo_jogador_key" not in st.session_state:
+        st.session_state["novo_jogador_key"] = 0
+
+    novo_jogador = st.text_input(
+        "Nome do jogador",
+        key=f"novo_jogador_{st.session_state['novo_jogador_key']}"
+    )
+
+    if st.button(
+        "Adicionar Jogador",
+        key="adicionar_jogador"
+    ):
+
+        adicionar_jogador(
+            selecao_filtro,
+            novo_jogador
+        )
+
+        st.session_state["novo_jogador_key"] += 1
+
+        st.success("Jogador adicionado.")
+        st.rerun()
+
+    st.divider()
+
+    if jogadores_filtrados:
+
+        jogador_selecionado = st.selectbox(
+            "Jogador",
+            jogadores_filtrados,
+            format_func=lambda j: j["jogador"],
+            key="jogador_edicao"
+        )
+
+        st.session_state["editar_jogador_nome"] = jogador_selecionado["jogador"]
+
+        nome_jogador = st.text_input(
+            "Nome",
+            key="editar_jogador_nome"
+        )
+
+        if st.button(
+            "Salvar Jogador",
+            key="salvar_jogador"
+        ):
+
+            editar_jogador(
+                jogador_selecionado["id"],
+                selecao_filtro,
+                nome_jogador
+            )
+
+            st.success("Jogador atualizado.")
+            st.rerun()
+
+        if st.button(
+            "🗑️ Excluir Jogador",
+            key="excluir_jogador"
+        ):
+
+            excluir_jogador(
+                jogador_selecionado["id"]
+            )
+
+            st.success("Jogador excluído.")
+            st.rerun()
 mostrar_rodape()
