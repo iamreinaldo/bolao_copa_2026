@@ -128,13 +128,10 @@ with aba_jogos:
                 key="jogo_edicao"
             )
 
-            st.session_state["editar_data_hora"] = jogo_selecionado["data_hora"]
-            st.session_state["editar_time_a"] = jogo_selecionado["time_a"]
-            st.session_state["editar_time_b"] = jogo_selecionado["time_b"]
-
             data_hora_edicao = st.text_input(
                 "Data e Hora",
-                key="editar_data_hora"
+                value=jogo_selecionado["data_hora"],
+                key=f'editar_data_hora_{jogo_selecionado["id"]}'
             )
 
             col_ed1, col_ed2 = st.columns(2)
@@ -143,20 +140,34 @@ with aba_jogos:
                 time_a_edicao = st.selectbox(
                     "Time A",
                     SELECOES,
-                    key="editar_time_a"
+                    index=SELECOES.index(jogo_selecionado["time_a"]),
+                    key=f'editar_time_a_{jogo_selecionado["id"]}'
                 )
 
             with col_ed2:
                 time_b_edicao = st.selectbox(
                     "Time B",
                     SELECOES,
-                    key="editar_time_b"
+                    index=SELECOES.index(jogo_selecionado["time_b"]),
+                    key=f'editar_time_b_{jogo_selecionado["id"]}'
                 )
 
             if st.button(
                 "Salvar Jogo",
                 key="salvar_jogo_editado"
             ):
+                try:
+                    datetime.strptime(
+                        data_hora_edicao,
+                        "%d/%m/%Y %H:%M"
+                    )
+                except ValueError:
+                    st.error("Use o formato DD/MM/AAAA HH:MM")
+                    st.stop()
+
+                if time_a_edicao == time_b_edicao:
+                    st.error("Os times devem ser diferentes")
+                    st.stop()
 
                 editar_jogo(
                     jogo_selecionado["id"],
