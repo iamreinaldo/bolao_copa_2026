@@ -33,12 +33,13 @@ from services.sqlite import (
 
 st.title("⚙️ Administração")
 
-aba_jogos, aba_resultados, aba_usuarios, aba_jogadores, aba_palpites = st.tabs([
+aba_jogos, aba_resultados, aba_usuarios, aba_jogadores, aba_palpites, aba_pendentes = st.tabs([
     "➕ Jogos",
     "🏁 Resultados",
     "👤 Usuários",
     "⚽ Jogadores",
-    "📝 Palpites"
+    "📝 Palpites",
+    "🚨 Pendentes"
 ])
 
 with aba_jogos:
@@ -592,4 +593,69 @@ with aba_palpites:
             )
 
     st.divider()
+
+with aba_pendentes:
+
+    st.header("🚨 Quem Ainda Não Apostou")
+
+    todos_usuarios = [
+        u
+        for u in listar_usuarios()
+        if u["usuario"] != "admin"
+    ]
+
+    todos_jogos = listar_jogos()
+    todos_palpites = listar_todos_palpites()
+
+    datas = sorted(
+        list({
+            jogo["data_hora"].split(" ")[0]
+            for jogo in todos_jogos
+        })
+    )
+
+    if datas:
+
+        data_selecionada = st.selectbox(
+            "📅 Data",
+            datas,
+            key="data_pendentes"
+        )
+
+        jogos_data = [
+            jogo
+            for jogo in todos_jogos
+            if jogo["data_hora"].startswith(data_selecionada)
+        ]
+
+        usuarios_pendentes = []
+
+        for usuario in todos_usuarios:
+
+            possui_todos = True
+
+            for jogo in jogos_data:
+
+                encontrou = any(
+                    str(p["usuario_id"]) == str(usuario["id"])
+                    and str(p["jogo_id"]) == str(jogo["id"])
+                    for p in todos_palpites
+                )
+
+                if not encontrou:
+                    possui_todos = False
+                    break
+
+            if not possui_todos:
+                usuarios_pendentes.append(usuario)
+
+        st.subheader(
+            f"Pendentes: {len(usuarios_pendentes)}"
+        )
+
+        if usuarios_pendentes:
+            for usuario in usuarios_pendentes:
+                st.write(f"• {usuario['nome']}")
+        else:
+            st.success("Todos os participantes já apostaram nesta data.")
 mostrar_rodape()
