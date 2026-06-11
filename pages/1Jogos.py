@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from services.footer import mostrar_rodape
 
 
@@ -15,6 +16,7 @@ from services.sqlite import (
 
 
 st.title("⚽ Jogos")
+FUSO_HORARIO = ZoneInfo("America/Bahia")
 
 
 jogos = listar_jogos()
@@ -45,14 +47,15 @@ for jogo in jogos:
     )
     st.caption(f'📅 {jogo["data_hora"]}')
     data_jogo = datetime.strptime(
-    jogo["data_hora"],
-    "%d/%m/%Y %H:%M"
-)
+        jogo["data_hora"],
+        "%d/%m/%Y %H:%M"
+    ).replace(tzinfo=FUSO_HORARIO)
     status_encerrado = (
         str(jogo["encerrado"]).lower() == "true"
     )
+    agora = datetime.now(FUSO_HORARIO)
     pode_apostar = (
-        datetime.now() < data_jogo and not status_encerrado
+        agora < data_jogo and not status_encerrado
     )
     if pode_apostar == True:
         st.write("✅ Você pode palpitar, adiante seu baba logo não, fique aí")
