@@ -33,16 +33,25 @@ from services.sqlite import (
 
 st.title("⚙️ Administração")
 
-try:
-    with open("bolao.db", "rb") as arquivo_banco:
+from pathlib import Path
+
+possiveis_bancos = list(Path('.').rglob('*.db'))
+
+if possiveis_bancos:
+    banco = possiveis_bancos[0]
+
+    with open(banco, 'rb') as arquivo_banco:
         st.download_button(
-            "📥 Baixar Backup do Banco",
+            f"📥 Baixar Backup ({banco.name})",
             data=arquivo_banco.read(),
-            file_name="bolao.db",
-            mime="application/octet-stream"
+            file_name=banco.name,
+            mime='application/octet-stream'
         )
-except Exception:
-    st.warning("Não foi possível localizar o banco para backup.")
+
+    with st.expander('Debug Banco'):
+        st.write(f'Banco encontrado: {banco}')
+else:
+    st.error('Nenhum arquivo .db encontrado no ambiente.')
 
 aba_jogos, aba_resultados, aba_usuarios, aba_jogadores, aba_palpites, aba_pendentes = st.tabs([
     "➕ Jogos",
