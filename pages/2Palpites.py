@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from services.footer import mostrar_rodape
 
 if not st.session_state.get("logado"):
@@ -14,6 +15,7 @@ from services.sqlite import (
 )
 
 st.title("📝 Meus Palpites")
+FUSO_HORARIO = ZoneInfo("America/Bahia")
 
 aba_meus_palpites, aba_revelados = st.tabs([
     "📝 Meus Palpites",
@@ -110,9 +112,9 @@ with aba_revelados:
             data_jogo = datetime.strptime(
                 str(jogo["data_hora"]),
                 "%d/%m/%Y %H:%M"
-            )
+            ).replace(tzinfo=FUSO_HORARIO)
 
-            if datetime.now() >= data_jogo:
+            if datetime.now(FUSO_HORARIO) >= data_jogo:
                 jogos_encerrados_para_revelar.append(jogo)
 
         except Exception:
