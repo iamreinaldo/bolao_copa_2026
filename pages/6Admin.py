@@ -33,33 +33,14 @@ from services.sqlite import (
 
 st.title("⚙️ Administração")
 
-from pathlib import Path
-
-possiveis_bancos = list(Path('.').rglob('*.db'))
-
-if possiveis_bancos:
-    banco = possiveis_bancos[0]
-
-    with open(banco, 'rb') as arquivo_banco:
-        st.download_button(
-            f"📥 Baixar Backup ({banco.name})",
-            data=arquivo_banco.read(),
-            file_name=banco.name,
-            mime='application/octet-stream'
-        )
-
-    with st.expander('Debug Banco'):
-        st.write(f'Banco encontrado: {banco}')
-else:
-    st.error('Nenhum arquivo .db encontrado no ambiente.')
-
-aba_jogos, aba_resultados, aba_usuarios, aba_jogadores, aba_palpites, aba_pendentes = st.tabs([
+aba_jogos, aba_resultados, aba_usuarios, aba_jogadores, aba_palpites, aba_pendentes, aba_backup = st.tabs([
     "➕ Jogos",
     "🏁 Resultados",
     "👤 Usuários",
     "⚽ Jogadores",
     "📝 Palpites",
-    "🚨 Pendentes"
+    "🚨 Pendentes",
+    "💾 Backup"
 ])
 
 with aba_jogos:
@@ -679,3 +660,26 @@ with aba_pendentes:
         else:
             st.success("Todos os participantes já apostaram nesta data.")
 mostrar_rodape()
+with aba_backup:
+
+    st.header("💾 Backup do Banco")
+
+    from pathlib import Path
+
+    possiveis_bancos = list(Path('.').rglob('*.db'))
+
+    if possiveis_bancos:
+        banco = possiveis_bancos[0]
+
+        with open(banco, 'rb') as arquivo_banco:
+            st.download_button(
+                f"📥 Baixar Backup ({banco.name})",
+                data=arquivo_banco.read(),
+                file_name=banco.name,
+                mime='application/octet-stream'
+            )
+
+        st.info(f"Banco encontrado: {banco}")
+
+    else:
+        st.error('Nenhum arquivo .db encontrado no ambiente.')
