@@ -29,10 +29,7 @@ google_credentials.json
 # Logs
 *.log
 
-# SQLite
-*.db
-*.sqlite
-*.sqlite3
+
 
 # Coverage
 .coverage
