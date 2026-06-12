@@ -1,7 +1,7 @@
 import streamlit as st
 
 from services.sqlite import listar_jogos
-from services.pontuacao import calcular_ranking_por_data
+from services.ranking import gerar_ranking_por_data
 
 from services.footer import mostrar_rodape
 
@@ -29,7 +29,7 @@ data_escolhida = st.selectbox(
     datas
 )
 
-ranking = calcular_ranking_por_data(
+ranking = gerar_ranking_por_data(
     data_escolhida
 )
 ranking = [

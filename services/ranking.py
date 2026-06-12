@@ -1,7 +1,8 @@
 from services.sqlite import (
     listar_jogos,
     listar_todos_palpites,
-    listar_usuarios
+    listar_usuarios,
+    listar_gols
 )
 
 
@@ -31,6 +32,7 @@ def gerar_ranking():
     jogos = listar_jogos()
     palpites = listar_todos_palpites()
     usuarios = listar_usuarios()
+    gols = listar_gols()
 
     ranking = {}
 
@@ -42,7 +44,15 @@ def gerar_ranking():
     jogos_encerrados = {
         str(jogo["id"]): jogo
         for jogo in jogos
-        if str(jogo["encerrado"]).lower() == "true"
+        if str(jogo["encerrado"]).lower() in ["true", "1"]
+    }
+
+    gols_por_chave = {
+        (
+            str(gol["jogo_id"]),
+            str(gol["jogador_id"])
+        ): int(gol["gols"])
+        for gol in gols
     }
 
     for palpite in palpites:
@@ -61,6 +71,14 @@ def gerar_ranking():
             int(jogo["gols_b"])
         )
 
+        pontos += gols_por_chave.get(
+            (
+                str(jogo["id"]),
+                str(palpite.get("jogador_gol", ""))
+            ),
+            0
+        )
+
         usuario_id = str(palpite["usuario_id"])
 
         ranking[usuario_id] = (
@@ -73,6 +91,7 @@ def gerar_ranking():
     for usuario_id, pontos in ranking.items():
 
         resultado.append({
+            "usuario_id": usuario_id,
             "nome": usuarios_por_id.get(
                 usuario_id,
                 "Desconhecido"
@@ -93,6 +112,7 @@ def gerar_ranking_por_data(data_escolhida):
     jogos = listar_jogos()
     palpites = listar_todos_palpites()
     usuarios = listar_usuarios()
+    gols = listar_gols()
 
     ranking = {}
 
@@ -106,8 +126,16 @@ def gerar_ranking_por_data(data_escolhida):
         for jogo in jogos
         if (
             jogo["data_hora"].split(" ")[0] == data_escolhida
-            and str(jogo["encerrado"]).lower() == "true"
+            and str(jogo["encerrado"]).lower() in ["true", "1"]
         )
+    }
+
+    gols_por_chave = {
+        (
+            str(gol["jogo_id"]),
+            str(gol["jogador_id"])
+        ): int(gol["gols"])
+        for gol in gols
     }
 
     for palpite in palpites:
@@ -126,6 +154,14 @@ def gerar_ranking_por_data(data_escolhida):
             int(jogo["gols_b"])
         )
 
+        pontos += gols_por_chave.get(
+            (
+                str(jogo["id"]),
+                str(palpite.get("jogador_gol", ""))
+            ),
+            0
+        )
+
         usuario_id = str(palpite["usuario_id"])
 
         ranking[usuario_id] = (
@@ -137,6 +173,7 @@ def gerar_ranking_por_data(data_escolhida):
 
     for usuario_id, pontos in ranking.items():
         resultado.append({
+            "usuario_id": usuario_id,
             "nome": usuarios_por_id.get(
                 usuario_id,
                 "Desconhecido"

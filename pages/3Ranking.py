@@ -4,11 +4,11 @@ from services.footer import mostrar_rodape
 if not st.session_state.get("logado"):
     st.switch_page("Home.py")
 
-from services.pontuacao import calcular_ranking
+from services.ranking import gerar_ranking
 
 st.title("🏆 Ranking")
 
-ranking = calcular_ranking()
+ranking = gerar_ranking()
 ranking = [
     usuario
     for usuario in ranking
@@ -31,7 +31,7 @@ else:
             medalha = "🥉"
 
         st.write(
-            f'{medalha} {posicao}º - {usuario["usuario"]} ({usuario["pontos"]} pts)'
+            f'{medalha} {posicao}º - {usuario["nome"]} ({usuario["pontos"]} pts)'
         )
 
 

@@ -8,7 +8,7 @@ def mostrar_rodape():
                     color:gray;
                     font-size:12px;
                     margin-top:50px;'>
-            Desenvolvido por Reitinik 🛰️ - versão 3.3.0
+            Desenvolvido por Reitinik 🛰️ - versão 3.3.1
         </div>
         """,
         unsafe_allow_html=True
