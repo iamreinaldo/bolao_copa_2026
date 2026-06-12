@@ -27,9 +27,18 @@ _datas_disponiveis = sorted(
 )
 
 if _datas_disponiveis:
+
+    hoje = datetime.now().strftime("%d/%m/%Y")
+
+    indice_padrao = 0
+
+    if hoje in _datas_disponiveis:
+        indice_padrao = _datas_disponiveis.index(hoje)
+
     data_selecionada = st.selectbox(
         "📅 Filtrar por data",
-        _datas_disponiveis
+        _datas_disponiveis,
+        index=indice_padrao
     )
 
     jogos = [

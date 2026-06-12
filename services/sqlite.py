@@ -584,3 +584,35 @@ def excluir_jogador(jogador_id):
 
     conn.commit()
     conn.close()
+
+def excluir_jogo(jogo_id):
+
+    conn = get_conn()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM gols
+        WHERE jogo_id = ?
+        """,
+        (jogo_id,)
+    )
+
+    cursor.execute(
+        """
+        DELETE FROM palpites
+        WHERE jogo_id = ?
+        """,
+        (jogo_id,)
+    )
+
+    cursor.execute(
+        """
+        DELETE FROM jogos
+        WHERE id = ?
+        """,
+        (jogo_id,)
+    )
+
+    conn.commit()
+    conn.close()

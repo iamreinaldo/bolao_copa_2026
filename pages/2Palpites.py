@@ -181,4 +181,4 @@ with aba_revelados:
 
         st.divider()
 
-mostrar_rodape()
+    mostrar_rodape()

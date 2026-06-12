@@ -20,6 +20,7 @@ from services.sqlite import (
     listar_todos_palpites,
     adicionar_jogo,
     editar_jogo,
+    excluir_jogo,
     criar_usuario,
     atualizar_usuario,
     excluir_usuario,
@@ -183,6 +184,23 @@ with aba_jogos:
                 st.success("Jogo atualizado com sucesso.")
                 st.rerun()
 
+            st.divider()
+
+            if st.button(
+                "🗑️ Excluir Jogo",
+                key=f'excluir_jogo_{jogo_selecionado["id"]}'
+            ):
+
+                excluir_jogo(
+                    jogo_selecionado["id"]
+                )
+
+                st.success(
+                    "Jogo excluído com sucesso."
+                )
+
+                st.rerun()
+
 with aba_resultados:
     jogos = listar_jogos()
     todos_jogadores = listar_jogadores()
@@ -196,9 +214,17 @@ with aba_resultados:
 
     if datas_disponiveis:
 
+        hoje = datetime.now().strftime("%d/%m/%Y")
+
+        indice_padrao = 0
+
+        if hoje in datas_disponiveis:
+            indice_padrao = datas_disponiveis.index(hoje)
+
         data_selecionada = st.selectbox(
             "📅 Filtrar por data",
             datas_disponiveis,
+            index=indice_padrao,
             key="admin_data_resultados"
         )
 
@@ -209,6 +235,19 @@ with aba_resultados:
                 data_selecionada
             )
         ]
+
+        mostrar_encerrados = st.checkbox(
+            "Mostrar jogos encerrados",
+            value=False,
+            key="mostrar_jogos_encerrados"
+        )
+
+        if not mostrar_encerrados:
+            jogos = [
+                jogo
+                for jogo in jogos
+                if str(jogo["encerrado"]).lower() not in ["true", "1"]
+            ]
 
     for jogo in jogos:
 
@@ -332,6 +371,7 @@ with aba_resultados:
                     )
 
             st.success("Resultado atualizado")
+            st.rerun()
 
 # Usuários tab
 with aba_usuarios:
