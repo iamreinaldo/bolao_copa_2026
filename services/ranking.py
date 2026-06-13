@@ -5,6 +5,13 @@ from services.sqlite import (
     listar_gols
 )
 
+from datetime import datetime
+
+DATA_INICIO_VALIDA = datetime.strptime(
+    "12/06/2026",
+    "%d/%m/%Y"
+)
+
 
 def calcular_pontos(
     palpite_a,
@@ -44,7 +51,13 @@ def gerar_ranking():
     jogos_encerrados = {
         str(jogo["id"]): jogo
         for jogo in jogos
-        if str(jogo["encerrado"]).lower() in ["true", "1"]
+        if (
+            str(jogo["encerrado"]).lower() in ["true", "1"]
+            and datetime.strptime(
+                jogo["data_hora"].split(" ")[0],
+                "%d/%m/%Y"
+            ) >= DATA_INICIO_VALIDA
+        )
     }
 
     gols_por_chave = {
@@ -127,6 +140,10 @@ def gerar_ranking_por_data(data_escolhida):
         if (
             jogo["data_hora"].split(" ")[0] == data_escolhida
             and str(jogo["encerrado"]).lower() in ["true", "1"]
+            and datetime.strptime(
+                jogo["data_hora"].split(" ")[0],
+                "%d/%m/%Y"
+            ) >= DATA_INICIO_VALIDA
         )
     }
 

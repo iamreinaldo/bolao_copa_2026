@@ -1,4 +1,5 @@
 import streamlit as st
+from datetime import datetime
 
 from services.sqlite import listar_jogos
 from services.ranking import gerar_ranking_por_data
@@ -24,9 +25,18 @@ datas = sorted(
     })
 )
 
+
+hoje = datetime.now().strftime("%d/%m/%Y")
+
+indice_padrao = 0
+
+if hoje in datas:
+    indice_padrao = datas.index(hoje)
+
 data_escolhida = st.selectbox(
     "📅 Escolha uma data",
-    datas
+    datas,
+    index=indice_padrao
 )
 
 ranking = gerar_ranking_por_data(

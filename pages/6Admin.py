@@ -281,7 +281,7 @@ with aba_resultados:
 
         encerrado = st.checkbox(
             "Jogo encerrado",
-            value=str(jogo["encerrado"]).lower() == "true",
+            value=str(jogo["encerrado"]).lower() in ["true", "1"],
             key=f'encerrado_{jogo["id"]}'
         )
 
@@ -297,17 +297,39 @@ with aba_resultados:
             )
         ]
 
+        gols_salvos = []
+
+        for jogador in jogadores_partida:
+
+            gols_existentes = buscar_gols_jogador(
+                jogo["id"],
+                jogador["id"]
+            )
+
+            if gols_existentes > 0:
+                gols_salvos.append({
+                    "jogador_id": jogador["id"],
+                    "selecao": jogador["selecao"],
+                    "gols": gols_existentes
+                })
+
         quantidade_linhas = st.number_input(
             "Quantidade de artilheiros",
             min_value=0,
             max_value=20,
-            value=0,
+            value=len(gols_salvos),
             key=f'qtde_gols_{jogo["id"]}'
         )
 
         gols_jogadores = {}
 
         for indice in range(quantidade_linhas):
+
+            gol_salvo = (
+                gols_salvos[indice]
+                if indice < len(gols_salvos)
+                else None
+            )
 
             col_time, col_jogador, col_gols = st.columns([2, 4, 1])
 
@@ -318,6 +340,11 @@ with aba_resultados:
                         jogo["time_a"],
                         jogo["time_b"]
                     ],
+                    index=(
+                        [jogo["time_a"], jogo["time_b"]].index(gol_salvo["selecao"])
+                        if gol_salvo
+                        else 0
+                    ),
                     key=f'time_gol_{jogo["id"]}_{indice}'
                 )
 
@@ -328,9 +355,19 @@ with aba_resultados:
             ]
 
             with col_jogador:
+                jogador_options = [j["id"] for j in jogadores_selecao]
+
+                jogador_index = 0
+
+                if gol_salvo and gol_salvo["jogador_id"] in jogador_options:
+                    jogador_index = jogador_options.index(
+                        gol_salvo["jogador_id"]
+                    )
+
                 jogador_id = st.selectbox(
                     f'Jogador #{indice + 1}',
-                    options=[j["id"] for j in jogadores_selecao],
+                    options=jogador_options,
+                    index=jogador_index,
                     format_func=lambda x: next(
                         j["jogador"]
                         for j in jogadores_selecao
@@ -343,7 +380,11 @@ with aba_resultados:
                 gols = st.number_input(
                     'Gols',
                     min_value=1,
-                    value=1,
+                    value=(
+                        int(gol_salvo["gols"])
+                        if gol_salvo
+                        else 1
+                    ),
                     key=f'gols_{jogo["id"]}_{indice}'
                 )
 
@@ -657,9 +698,17 @@ with aba_pendentes:
 
     if datas:
 
+        hoje = datetime.now().strftime("%d/%m/%Y")
+
+        indice_padrao = 0
+
+        if hoje in datas:
+            indice_padrao = datas.index(hoje)
+
         data_selecionada = st.selectbox(
             "📅 Data",
             datas,
+            index=indice_padrao,
             key="data_pendentes"
         )
 
