@@ -78,6 +78,7 @@ for jogo in jogos:
 
     valor_a = 0
     valor_b = 0
+    jogador_salvo = None
 
     if palpite_existente:
         st.info(
@@ -85,6 +86,7 @@ for jogo in jogos:
         )
         valor_a = int(palpite_existente["palpite_a"])
         valor_b = int(palpite_existente["palpite_b"])
+        jogador_salvo = palpite_existente.get("jogador_gol")
 
     if not pode_apostar:
 
@@ -116,12 +118,30 @@ for jogo in jogos:
 
         todos_jogadores = listar_jogadores()
 
+        indice_time = 0
+
+        if jogador_salvo:
+            jogador_salvo_info = next(
+                (
+                    j for j in todos_jogadores
+                    if str(j["id"]) == str(jogador_salvo)
+                ),
+                None
+            )
+
+            if (
+                jogador_salvo_info
+                and jogador_salvo_info["selecao"] == jogo["time_b"]
+            ):
+                indice_time = 1
+
         time_jogador = st.radio(
             "⚽ Time do artilheiro",
             [
                 jogo["time_a"],
                 jogo["time_b"]
             ],
+            index=indice_time,
             horizontal=True,
             key=f'time_jogador_{jogo["id"]}'
         )
@@ -132,12 +152,20 @@ for jogo in jogos:
             if jogador["selecao"] == time_jogador
         ]
 
+        jogador_options = [
+            jogador["id"]
+            for jogador in jogadores_disponiveis
+        ]
+
+        jogador_index = 0
+
+        if jogador_salvo and jogador_salvo in jogador_options:
+            jogador_index = jogador_options.index(jogador_salvo)
+
         jogador_escolhido = st.selectbox(
             "⚽ Jogador",
-            options=[
-                jogador["id"]
-                for jogador in jogadores_disponiveis
-            ],
+            options=jogador_options,
+            index=jogador_index,
             format_func=lambda jogador_id: next(
                 j["jogador"]
                 for j in jogadores_disponiveis
