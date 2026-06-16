@@ -61,8 +61,9 @@ Hotfix 3.2.1
 Correção de Bugs:
 - Agora a versão é apresentada corretamente no rodapé
 - ⁠Timezone do horário de Brasília foi adotado corretamente, corrigindo o problema dos jogos fecharem antes do horário estipulado
+- Timezone ho horário de Brasília adicionado a pagina de palpites, corrigindo o problema dos usuários verem os palpites antes do jogo começar
 
 Hotfix 3.2.2
 
-Correção de bug:
-- Timezone ho horário de Brasília adicionado a pagina de palpites, corrigindo o problema dos usuários verem os palpites antes do jogo começar
+Correção de bug
+- Corrigido o problema que mostrava sempre o primeiro jogador da lista na seleção de artilheiro do jogo mesmo após a escolha do palpite.
