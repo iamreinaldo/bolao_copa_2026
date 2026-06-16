@@ -616,3 +616,28 @@ def excluir_jogo(jogo_id):
 
     conn.commit()
     conn.close()
+
+
+# Função para atualizar o modo_mobile de um usuário
+def atualizar_modo_mobile(
+    usuario_id,
+    modo_mobile
+):
+
+    conn = get_conn()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        UPDATE usuarios
+        SET modo_mobile = ?
+        WHERE id = ?
+        """,
+        (
+            int(modo_mobile),
+            usuario_id
+        )
+    )
+
+    conn.commit()
+    conn.close()

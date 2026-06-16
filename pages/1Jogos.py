@@ -16,6 +16,10 @@ from services.sqlite import (
 
 
 st.title("⚽ Jogos")
+modo_mobile = st.session_state.get(
+    "modo_mobile",
+    False
+)
 FUSO_HORARIO = ZoneInfo("America/Bahia")
 
 
@@ -162,17 +166,33 @@ for jogo in jogos:
         if jogador_salvo and jogador_salvo in jogador_options:
             jogador_index = jogador_options.index(jogador_salvo)
 
-        jogador_escolhido = st.selectbox(
-            "⚽ Jogador",
-            options=jogador_options,
-            index=jogador_index,
-            format_func=lambda jogador_id: next(
-                j["jogador"]
-                for j in jogadores_disponiveis
-                if str(j["id"]) == str(jogador_id)
-            ),
-            key=f'jogador_{jogo["id"]}'
-        )
+        if not modo_mobile:
+
+            jogador_escolhido = st.selectbox(
+                "⚽ Jogador",
+                options=jogador_options,
+                index=jogador_index,
+                format_func=lambda jogador_id: next(
+                    j["jogador"]
+                    for j in jogadores_disponiveis
+                    if str(j["id"]) == str(jogador_id)
+                ),
+                key=f'jogador_{jogo["id"]}'
+            )
+
+        else:
+
+            jogador_escolhido = st.radio(
+                "⚽ Jogador",
+                options=jogador_options,
+                index=jogador_index,
+                format_func=lambda jogador_id: next(
+                    j["jogador"]
+                    for j in jogadores_disponiveis
+                    if str(j["id"]) == str(jogador_id)
+                ),
+                key=f'jogador_{jogo["id"]}'
+            )
 
         if st.button(
             "Salvar",
