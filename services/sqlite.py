@@ -496,6 +496,22 @@ def salvar_ou_atualizar_gol(
     conn.close()
 
 
+def excluir_gols_jogo(jogo_id):
+
+    conn = get_conn()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM gols
+        WHERE jogo_id = ?
+        """,
+        (jogo_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
 
 def buscar_gols_jogador(
     jogo_id,

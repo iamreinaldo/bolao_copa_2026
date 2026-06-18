@@ -67,3 +67,7 @@ Hotfix 3.2.2
 
 Correção de bug
 - Corrigido o problema que mostrava sempre o primeiro jogador da lista na seleção de artilheiro do jogo mesmo após a escolha do palpite.
+
+Patch notes 3.3.0
+
+- Agora o usuário pode escolher a forma dos jogadores para palpitar na Home após logar

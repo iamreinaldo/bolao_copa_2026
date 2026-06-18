@@ -26,6 +26,7 @@ from services.sqlite import (
     excluir_usuario,
     atualizar_resultado,
     salvar_ou_atualizar_gol,
+    excluir_gols_jogo,
     buscar_gols_jogador,
     adicionar_jogador,
     editar_jogador,
@@ -395,11 +396,27 @@ with aba_resultados:
             key=f'salvar_resultado_{jogo["id"]}'
         ):
 
+            gols_a_salvar = int(
+                st.session_state[f'gols_a_{jogo["id"]}']
+            )
+
+            gols_b_salvar = int(
+                st.session_state[f'gols_b_{jogo["id"]}']
+            )
+
+            encerrado_salvar = bool(
+                st.session_state[f'encerrado_{jogo["id"]}']
+            )
+
             atualizar_resultado(
                 jogo["id"],
-                gols_a,
-                gols_b,
-                encerrado
+                gols_a_salvar,
+                gols_b_salvar,
+                encerrado_salvar
+            )
+
+            excluir_gols_jogo(
+                jogo["id"]
             )
 
             for jogador_id, gols in gols_jogadores.items():
