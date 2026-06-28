@@ -50,7 +50,8 @@ with aba_meus_palpites:
                 jogos_por_id[str(p["jogo_id"])] ["data_hora"].split(" ")[0]
                 for p in palpites
                 if str(p["jogo_id"]) in jogos_por_id
-            })
+            }),
+            key=lambda data: datetime.strptime(data, "%d/%m/%Y")
         )
 
         data_selecionada = st.selectbox(
@@ -124,7 +125,8 @@ with aba_revelados:
         list({
             jogo["data_hora"].split(" ")[0]
             for jogo in jogos_encerrados_para_revelar
-        })
+        }),
+        key=lambda data: datetime.strptime(data, "%d/%m/%Y")
     )
 
     if not datas_disponiveis:

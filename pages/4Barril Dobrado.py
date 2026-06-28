@@ -29,7 +29,8 @@ datas = sorted(
     list({
         jogo["data_hora"].split(" ")[0]
         for jogo in jogos
-    })
+    }),
+    key=lambda data: datetime.strptime(data, "%d/%m/%Y")
 )
 hoje = datetime.now().strftime("%d/%m/%Y")
 

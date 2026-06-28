@@ -27,7 +27,8 @@ jogos = listar_jogos()
 
 # Datas disponíveis
 _datas_disponiveis = sorted(
-    list({jogo["data_hora"].split(" ")[0] for jogo in jogos})
+    list({jogo["data_hora"].split(" ")[0] for jogo in jogos}),
+    key=lambda data: datetime.strptime(data, "%d/%m/%Y")
 )
 
 if _datas_disponiveis:
