@@ -210,7 +210,8 @@ with aba_resultados:
         list({
             jogo["data_hora"].split(" ")[0]
             for jogo in jogos
-        })
+        }),
+        key=lambda data: datetime.strptime(data, "%d/%m/%Y")
     )
 
     if datas_disponiveis:
@@ -710,7 +711,8 @@ with aba_pendentes:
         list({
             jogo["data_hora"].split(" ")[0]
             for jogo in todos_jogos
-        })
+        }),
+        key=lambda data: datetime.strptime(data, "%d/%m/%Y")
     )
 
     if datas:

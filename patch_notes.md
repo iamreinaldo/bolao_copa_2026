@@ -71,3 +71,8 @@ Correção de bug
 Patch notes 3.3.0
 
 - Agora o usuário pode escolher a forma dos jogadores para palpitar na Home após logar
+
+Hotfix 3.3.1
+
+Correção de Bug:
+-  ⁠Corrigindo bug que o usuário Admin não conseguia alterar o resultado dos jogos já salvos

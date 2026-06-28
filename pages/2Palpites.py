@@ -131,9 +131,17 @@ with aba_revelados:
         st.info("Nenhum jogo disponível para revelar palpites.")
         st.stop()
 
+    
+    hoje  = datetime.now(FUSO_HORARIO).strftime("%d/%m/%Y")
+    indice_padrao = 0
+
+    if hoje in datas_disponiveis:
+        indice_padrao = datas_disponiveis.index(hoje)
+
     data_selecionada = st.selectbox(
         "📅 Data",
         datas_disponiveis,
+        index=indice_padrao,
         key="data_palpites_revelados"
     )
 
